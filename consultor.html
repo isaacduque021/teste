@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isaac Duque | Corretor de Imóveis no Rio de Janeiro</title>
+<meta name="description" content="Apartamentos e casas à venda no Rio de Janeiro. Atendimento personalizado com o corretor Isaac Duque.">
+<style>
+  :root {
+    --preto: #0a0a0a;
+    --branco: #f5f5f3;
+    --cinza: #8a8a8a;
+    --linha: rgba(245,245,243,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--preto);
+    color: var(--branco);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Granulado cinematográfico */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Navegação */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 6%;
+    z-index: 100;
+    transition: background .4s, backdrop-filter .4s;
+  }
+  nav.scrolled { background: rgba(10,10,10,.85); backdrop-filter: blur(10px); }
+  .logo { font-family: Georgia, serif; letter-spacing: .3em; font-size: .95rem; text-transform: uppercase; }
+  nav ul { display: flex; gap: 2rem; list-style: none; }
+  nav ul a { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cinza); transition: color .3s; }
+  nav ul a:hover { color: var(--branco); }
+
+  /* Hero com foto de fundo */
+  .hero {
+    height: 60vh; min-height: 420px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0 6%;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: -10%;
+    background:
+      linear-gradient(rgba(10,10,10,.55), rgba(10,10,10,.9)),
+      url("fotos/foto01.png") center / cover no-repeat;
+    animation: zoom 20s ease-in-out infinite alternate;
+    z-index: -1;
+  }
+  @keyframes zoom { from { transform: scale(1); } to { transform: scale(1.12); } }
+  .hero small {
+    letter-spacing: .5em; font-size: .7rem; text-transform: uppercase; color: var(--cinza);
+    opacity: 0; animation: subir 1.2s .3s forwards;
+  }
+  .hero h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: clamp(2.6rem, 8vw, 6.5rem);
+    line-height: 1.05;
+    margin: 1.2rem 0;
+    opacity: 0; animation: subir 1.4s .6s forwards;
+  }
+  .hero p {
+    max-width: 520px; color: #c9c9c6; font-size: 1.05rem;
+    opacity: 0; animation: subir 1.4s 1s forwards;
+  }
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 60px; background: linear-gradient(var(--branco), transparent);
+    animation: pulsa 2.4s infinite;
+  }
+  @keyframes subir { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+  @keyframes pulsa { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+
+  /* Seções */
+  section { padding: 8rem 6%; }
+  .titulo {
+    font-family: Georgia, serif; font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    margin-bottom: 1rem;
+  }
+  .rotulo {
+    font-size: .72rem; letter-spacing: .35em; text-transform: uppercase; color: var(--cinza);
+    margin-bottom: 1rem; display: block;
+  }
+  .divisor { width: 60px; height: 1px; background: var(--branco); margin: 2rem 0; }
+
+  /* Sobre */
+  .sobre { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; max-width: 1200px; margin: auto; }
+  .foto {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    border: 1px solid var(--linha);
+  }
+  .sobre p { color: #c9c9c6; margin-bottom: 1.2rem; }
+
+  /* Contato */
+  .contato { text-align: center; padding-bottom: 6rem; }
+  .contato p.descricao { color: var(--cinza); max-width: 480px; margin: 1rem auto 0; }
+  .botoes { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: 1.1rem 2.4rem;
+    border: 1px solid var(--branco);
+    font-size: .8rem; letter-spacing: .25em; text-transform: uppercase;
+    transition: all .4s;
+  }
+  .btn:hover { background: var(--branco); color: var(--preto); }
+  .btn.solido { background: var(--branco); color: var(--preto); }
+  .btn.solido:hover { background: transparent; color: var(--branco); }
+  .btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  footer {
+    border-top: 1px solid var(--linha);
+    padding: 2rem 6%; text-align: center;
+    font-size: .75rem; color: var(--cinza); letter-spacing: .15em;
+  }
+
+  /* Revelação ao rolar */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s, transform 1s; }
+  .reveal.visivel { opacity: 1; transform: none; }
+
+  /* Responsivo */
+  @media (max-width: 860px) {
+    nav ul { display: none; }
+    .sobre { grid-template-columns: 1fr; gap: 3rem; }
+    .foto { aspect-ratio: 4/5; }
+    section { padding: 5rem 6%; }
+  }
+  @media (max-width: 480px) {
+    .btn { width: 100%; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo">Isaac Duque</div>
+  <ul>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <small>Corretor de Imóveis · Rio de Janeiro</small>
+  <h1>Apartamentos e casas<br>que contam a sua história</h1>
+  <p>Venda e aquisição de imóveis residenciais no Rio de Janeiro, com atendimento próximo, discreto e focado no que você realmente procura.</p>
+  <div class="scroll-hint"></div>
+</header>
+
+<section id="sobre" class="sobre">
+  <img class="foto reveal" src="fotos/foto02.png" alt="Isaac Duque, corretor de imóveis no Rio de Janeiro">
+  <div class="reveal">
+    <span class="rotulo">Sobre mim</span>
+    <h2 class="titulo">Isaac Duque</h2>
+    <div class="divisor"></div>
+    <p>Sou corretor de imóveis no Rio de Janeiro e dedico minha carreira a conectar pessoas aos imóveis certos, da primeira visita até a assinatura.</p>
+    <p>Acredito em transparência, escuta atenta e um processo sem pressa. Cada cliente recebe uma seleção feita sob medida, com informações completas sobre cada imóvel.</p>
+    <p>Trabalho com apartamentos e casas em diversas regiões da cidade e com oportunidades de investimento para quem busca segurança e valorização.</p>
+  </div>
+</section>
+
+<section id="contato" class="contato">
+  <div class="reveal">
+    <span class="rotulo">Contato</span>
+    <h2 class="titulo">Vamos conversar?</h2>
+    <p class="descricao">Fale diretamente comigo pelo WhatsApp ou acompanhe as novidades no Instagram.</p>
+    <div class="botoes">
+      <a class="btn solido" href="https://wa.me/5521984912617" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 2.6 1 2.6.7 3 .7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/></svg>
+        WhatsApp
+      </a>
+      <a class="btn" href="https://instagram.com/consultor.isaacduque" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg>
+        Instagram
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>© <span id="ano"></span> ISAAC DUQUE · CORRETOR DE IMÓVEIS · RIO DE JANEIRO</footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+
+  const nav = document.getElementById("nav");
+  window.addEventListener("scroll", () => {
+    nav.classList.toggle("scrolled", window.scrollY > 50);
+  });
+
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visivel");
+        observador.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll(".reveal").forEach(el => observador.observe(el));
+</script>
+</body>
+</html>
