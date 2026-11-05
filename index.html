@@ -2,217 +2,462 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Isaac Duque | Corretor de Imóveis no Rio de Janeiro</title>
 <meta name="description" content="Apartamentos e casas à venda no Rio de Janeiro. Atendimento personalizado com o corretor Isaac Duque.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
-    --preto: #0a0a0a;
-    --branco: #f5f5f3;
-    --cinza: #8a8a8a;
-    --linha: rgba(245,245,243,0.12);
+    --fundo: #000;
+    --superficie: #111113;
+    --alumínio: linear-gradient(180deg, #d9d9dc 0%, #9d9da3 50%, #c9c9cd 100%);
+    --texto: #f5f5f7;
+    --sutil: #8e8e93;
+    --linha: rgba(255,255,255,.09);
+    --verde: #25d366;
+    --raio: 26px;
+    --fonte: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--preto);
-    color: var(--branco);
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: var(--fonte);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
   img { max-width: 100%; display: block; }
   a { color: inherit; text-decoration: none; }
 
-  /* Granulado cinematográfico */
-  body::after {
-    content: "";
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
-    opacity: 0.05;
-    pointer-events: none;
-    z-index: 999;
-  }
-
   /* Navegação */
   nav {
-    position: fixed; top: 0; left: 0; right: 0;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.2rem 6%;
-    z-index: 100;
-    transition: background .4s, backdrop-filter .4s;
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(18,18,20,.78);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--linha);
+    z-index: 1000;
   }
-  nav.scrolled { background: rgba(10,10,10,.85); backdrop-filter: blur(10px); }
-  .logo { font-family: Georgia, serif; letter-spacing: .3em; font-size: .95rem; text-transform: uppercase; }
-  nav ul { display: flex; gap: 2rem; list-style: none; }
-  nav ul a { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cinza); transition: color .3s; }
-  nav ul a:hover { color: var(--branco); }
+  .nav-inner {
+    width: 100%; max-width: 1080px; padding: 0 22px;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .logo {
+    font-size: 1rem; font-weight: 600; letter-spacing: -.01em;
+    background: var(--alumínio);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .nav-direita { display: flex; align-items: center; gap: 1.6rem; }
+  .nav-links { display: flex; gap: 1.6rem; list-style: none; }
+  .nav-links a { font-size: .8rem; color: var(--sutil); transition: color .3s; }
+  .nav-links a:hover { color: var(--texto); }
+  .btn-nav {
+    display: inline-flex; align-items: center; gap: .45rem;
+    background: var(--verde); color: #fff;
+    font-size: .8rem; font-weight: 600;
+    padding: .5rem 1rem; border-radius: 999px;
+    transition: transform .3s, filter .3s; white-space: nowrap;
+  }
+  .btn-nav:hover { transform: scale(1.04); filter: brightness(1.08); }
+  .btn-nav svg { width: 15px; height: 15px; fill: currentColor; }
 
-  /* Hero com foto de fundo */
+  /* Hero */
   .hero {
-    height: 60vh; min-height: 420px;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    min-height: 85vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center;
-    position: relative;
-    overflow: hidden;
-    padding: 0 6%;
+    padding: 120px 6% 80px;
+    position: relative; overflow: hidden;
   }
   .hero::before {
-    content: "";
-    position: absolute; inset: -10%;
-    background:
-      linear-gradient(rgba(10,10,10,.55), rgba(10,10,10,.9)),
-      url("fotos/foto01.png") center / cover no-repeat;
-    animation: zoom 20s ease-in-out infinite alternate;
-    z-index: -1;
+    content: ""; position: absolute; top: -25%; left: 50%; transform: translateX(-50%);
+    width: min(900px, 140%); height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,200,210,.14), transparent 65%);
+    filter: blur(40px); pointer-events: none; z-index: -1;
   }
-  @keyframes zoom { from { transform: scale(1); } to { transform: scale(1.12); } }
-  .hero small {
-    letter-spacing: .5em; font-size: .7rem; text-transform: uppercase; color: var(--cinza);
-    opacity: 0; animation: subir 1.2s .3s forwards;
+  .badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-size: .8rem; color: var(--sutil);
+    background: var(--superficie); border: 1px solid var(--linha);
+    padding: .4rem .9rem; border-radius: 999px; margin-bottom: 1.6rem;
+    opacity: 0; animation: subir 1s .1s forwards;
+  }
+  .badge::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--verde); box-shadow: 0 0 10px var(--verde);
   }
   .hero h1 {
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: 400;
-    font-size: clamp(2.6rem, 8vw, 6.5rem);
-    line-height: 1.05;
-    margin: 1.2rem 0;
-    opacity: 0; animation: subir 1.4s .6s forwards;
+    font-size: clamp(2.8rem, 8vw, 6rem);
+    font-weight: 700; letter-spacing: -.045em; line-height: 1.02;
+    max-width: 900px;
+    opacity: 0; animation: subir 1s .25s forwards;
+  }
+  .hero h1 span {
+    background: var(--alumínio);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .hero p {
-    max-width: 520px; color: #c9c9c6; font-size: 1.05rem;
-    opacity: 0; animation: subir 1.4s 1s forwards;
+    margin-top: 1.4rem; max-width: 560px;
+    color: var(--sutil); font-size: clamp(1rem, 2.2vw, 1.25rem);
+    opacity: 0; animation: subir 1s .4s forwards;
   }
-  .scroll-hint {
-    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-    width: 1px; height: 60px; background: linear-gradient(var(--branco), transparent);
-    animation: pulsa 2.4s infinite;
+  .hero-acoes {
+    display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 2.2rem;
+    opacity: 0; animation: subir 1s .5s forwards;
   }
-  @keyframes subir { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
-  @keyframes pulsa { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+  @keyframes subir { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+
+  /* Botões */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+    padding: .95rem 1.8rem; border-radius: 999px;
+    font-size: 1rem; font-weight: 500;
+    transition: transform .3s, background .3s, filter .3s;
+  }
+  .btn:hover { transform: scale(1.03); }
+  .btn svg { width: 19px; height: 19px; fill: currentColor; }
+  .btn-principal { background: var(--verde); color: #fff; }
+  .btn-principal:hover { filter: brightness(1.08); }
+  .btn-secundario { background: rgba(255,255,255,.08); color: var(--texto); }
+  .btn-secundario:hover { background: rgba(255,255,255,.14); }
 
   /* Seções */
-  section { padding: 8rem 6%; }
-  .titulo {
-    font-family: Georgia, serif; font-weight: 400;
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    margin-bottom: 1rem;
-  }
+  section { padding: 120px 6%; }
+  .container { max-width: 1080px; margin: auto; }
   .rotulo {
-    font-size: .72rem; letter-spacing: .35em; text-transform: uppercase; color: var(--cinza);
-    margin-bottom: 1rem; display: block;
+    display: block; font-size: .85rem; font-weight: 600;
+    color: var(--sutil); margin-bottom: .8rem; text-transform: uppercase; letter-spacing: .08em;
   }
-  .divisor { width: 60px; height: 1px; background: var(--branco); margin: 2rem 0; }
+  .titulo {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 700; letter-spacing: -.035em; line-height: 1.08;
+    margin-bottom: 1.2rem;
+  }
+  .texto { color: var(--sutil); font-size: 1.1rem; margin-bottom: 1rem; max-width: 620px; }
 
   /* Sobre */
-  .sobre { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; max-width: 1200px; margin: auto; }
-  .foto {
-    width: 100%;
-    aspect-ratio: 3/4;
-    object-fit: cover;
+  .sobre-card {
+    background: var(--superficie);
     border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: clamp(1.6rem, 5vw, 4rem);
+    display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: center;
   }
-  .sobre p { color: #c9c9c6; margin-bottom: 1.2rem; }
+  .sobre-card img {
+    width: 100%; aspect-ratio: 1/1; object-fit: cover;
+    border-radius: 22px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.8rem; }
+  .tags span {
+    font-size: .85rem; padding: .5rem 1rem;
+    background: rgba(255,255,255,.06); border: 1px solid var(--linha);
+    border-radius: 999px; color: #d2d2d7;
+  }
+
+  /* Mapa */
+  .mapa-cabecalho { text-align: center; margin-bottom: 2.5rem; }
+  .mapa-cabecalho .texto { margin: 0 auto; }
+  .filtros { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 1.5rem; }
+  .filtro {
+    font-family: inherit; font-size: .85rem;
+    background: rgba(255,255,255,.06); color: #d2d2d7;
+    border: 1px solid var(--linha); border-radius: 999px;
+    padding: .5rem 1.1rem; cursor: pointer;
+    transition: background .3s, color .3s;
+  }
+  .filtro:hover { background: rgba(255,255,255,.12); }
+  .filtro.ativo { background: var(--texto); color: var(--fundo); border-color: var(--texto); }
+  #mapa {
+    width: 100%; height: 560px;
+    border-radius: var(--raio);
+    border: 1px solid var(--linha);
+    overflow: hidden;
+    background: #0b0b0c;
+  }
+  .leaflet-container { font-family: var(--fonte); background: #0b0b0c; }
+  .leaflet-popup-content-wrapper {
+    background: #161618; color: var(--texto);
+    border: 1px solid var(--linha); border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.6);
+  }
+  .leaflet-popup-tip { background: #161618; }
+  .leaflet-popup-content { margin: 14px 16px; font-size: .9rem; line-height: 1.4; }
+  .leaflet-popup-content strong { font-size: 1rem; font-weight: 600; }
+  .popup-zona { color: var(--sutil); font-size: .8rem; }
+  .popup-btn {
+    display: inline-block; margin-top: .7rem;
+    background: var(--verde); color: #fff;
+    padding: .45rem .9rem; border-radius: 999px;
+    font-size: .8rem; font-weight: 600;
+  }
+  .leaflet-tooltip {
+    background: var(--texto); color: var(--fundo);
+    border: none; border-radius: 8px; font-weight: 600; font-size: .78rem;
+    padding: .3rem .6rem; box-shadow: none;
+  }
+  .leaflet-tooltip-top::before { border-top-color: var(--texto); }
+  .leaflet-control-attribution { background: rgba(0,0,0,.6) !important; color: #888 !important; font-size: .65rem; }
+  .leaflet-control-attribution a { color: #aaa !important; }
+  .leaflet-control-zoom a {
+    background: #161618 !important; color: var(--texto) !important;
+    border-color: var(--linha) !important;
+  }
+  .mapa-legenda { text-align: center; color: var(--sutil); font-size: .85rem; margin-top: 1rem; }
 
   /* Contato */
-  .contato { text-align: center; padding-bottom: 6rem; }
-  .contato p.descricao { color: var(--cinza); max-width: 480px; margin: 1rem auto 0; }
-  .botoes { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem; }
-  .btn {
-    display: inline-flex; align-items: center; gap: .6rem;
-    padding: 1.1rem 2.4rem;
-    border: 1px solid var(--branco);
-    font-size: .8rem; letter-spacing: .25em; text-transform: uppercase;
-    transition: all .4s;
+  .contato { text-align: center; }
+  .contato-card {
+    background: linear-gradient(180deg, #1c1c1f, #0b0b0c);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: clamp(3rem, 7vw, 5.5rem) 1.5rem;
+    max-width: 960px; margin: auto;
+    position: relative; overflow: hidden;
   }
-  .btn:hover { background: var(--branco); color: var(--preto); }
-  .btn.solido { background: var(--branco); color: var(--preto); }
-  .btn.solido:hover { background: transparent; color: var(--branco); }
-  .btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .contato-card .texto { margin: 0 auto; }
+  .botoes { display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap; margin-top: 2.4rem; }
 
   footer {
+    text-align: center; padding: 2.5rem 6% 2rem;
+    font-size: .8rem; color: #6e6e73;
     border-top: 1px solid var(--linha);
-    padding: 2rem 6%; text-align: center;
-    font-size: .75rem; color: var(--cinza); letter-spacing: .15em;
   }
 
   /* Revelação ao rolar */
-  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s, transform 1s; }
+  .reveal { opacity: 0; transform: translateY(34px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
   .reveal.visivel { opacity: 1; transform: none; }
 
-  /* Responsivo */
+  /* Celular e tablet */
   @media (max-width: 860px) {
-    nav ul { display: none; }
-    .sobre { grid-template-columns: 1fr; gap: 3rem; }
-    .foto { aspect-ratio: 4/5; }
-    section { padding: 5rem 6%; }
+    .nav-links { display: none; }
+    .sobre-card { grid-template-columns: 1fr; gap: 2rem; }
+    section { padding: 80px 5%; }
+    #mapa { height: 460px; }
   }
   @media (max-width: 480px) {
-    .btn { width: 100%; justify-content: center; }
+    .nav-inner { padding: 0 16px; }
+    .btn-nav span { display: none; }
+    .btn-nav { padding: .55rem .7rem; }
+    .hero { padding-top: 100px; }
+    .hero-acoes, .botoes { flex-direction: column; width: 100%; }
+    .btn { width: 100%; }
+    .contato-card { padding: 3rem 1.2rem; }
+    #mapa { height: 400px; }
+    .filtro { font-size: .8rem; padding: .45rem .9rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
-    .reveal { opacity: 1; transform: none; }
+    .reveal, .badge, .hero h1, .hero p, .hero-acoes { opacity: 1; transform: none; }
   }
 </style>
 </head>
 <body>
 
-<nav id="nav">
-  <div class="logo">Isaac Duque</div>
-  <ul>
-    <li><a href="#sobre">Sobre</a></li>
-    <li><a href="#contato">Contato</a></li>
-  </ul>
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Isaac Duque</div>
+    <div class="nav-direita">
+      <ul class="nav-links">
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#mapa">Imóveis</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+      <a class="btn-nav" href="https://wa.me/5521984912617" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 2.6 1 2.6.7 3 .7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/></svg>
+        <span>WhatsApp</span>
+      </a>
+    </div>
+  </div>
 </nav>
 
 <header class="hero">
-  <small>Corretor de Imóveis · Rio de Janeiro</small>
-  <h1>Apartamentos e casas<br>que contam a sua história</h1>
-  <p>Venda e aquisição de imóveis residenciais no Rio de Janeiro, com atendimento próximo, discreto e focado no que você realmente procura.</p>
-  <div class="scroll-hint"></div>
+  <div class="badge">Disponível para atendimento</div>
+  <h1>Imóveis no Rio, <span>com clareza e cuidado.</span></h1>
+  <p>Venda e aquisição de apartamentos e casas no Rio de Janeiro, com atendimento próximo e um processo transparente do início ao fim.</p>
+  <div class="hero-acoes">
+    <a class="btn btn-principal" href="https://wa.me/5521984912617" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 2.6 1 2.6.7 3 .7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/></svg>
+      Chamar no WhatsApp
+    </a>
+  </div>
 </header>
 
-<section id="sobre" class="sobre">
-  <img class="foto reveal" src="fotos/foto02.png" alt="Isaac Duque, corretor de imóveis no Rio de Janeiro">
-  <div class="reveal">
-    <span class="rotulo">Sobre mim</span>
-    <h2 class="titulo">Isaac Duque</h2>
-    <div class="divisor"></div>
-    <p>Sou corretor de imóveis no Rio de Janeiro e dedico minha carreira a conectar pessoas aos imóveis certos, da primeira visita até a assinatura.</p>
-    <p>Acredito em transparência, escuta atenta e um processo sem pressa. Cada cliente recebe uma seleção feita sob medida, com informações completas sobre cada imóvel.</p>
-    <p>Trabalho com apartamentos e casas em diversas regiões da cidade e com oportunidades de investimento para quem busca segurança e valorização.</p>
-  </div>
-</section>
-
-<section id="contato" class="contato">
-  <div class="reveal">
-    <span class="rotulo">Contato</span>
-    <h2 class="titulo">Vamos conversar?</h2>
-    <p class="descricao">Fale diretamente comigo pelo WhatsApp ou acompanhe as novidades no Instagram.</p>
-    <div class="botoes">
-      <a class="btn solido" href="https://wa.me/5521984912617" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 2.6 1 2.6.7 3 .7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/></svg>
-        WhatsApp
-      </a>
-      <a class="btn" href="https://instagram.com/consultor.isaacduque" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg>
-        Instagram
-      </a>
+<section id="sobre">
+  <div class="container">
+    <div class="sobre-card reveal">
+      <img src="fotos/foto02.png" alt="Isaac Duque, corretor de imóveis no Rio de Janeiro">
+      <div>
+        <span class="rotulo">Sobre mim</span>
+        <h2 class="titulo">Isaac Duque</h2>
+        <p class="texto">Sou corretor de imóveis no Rio de Janeiro e dedico minha carreira a conectar pessoas aos imóveis certos, da primeira visita até a assinatura.</p>
+        <p class="texto">Acredito em transparência, escuta atenta e um processo sem pressa. Cada cliente recebe uma seleção feita sob medida, com informações completas sobre cada imóvel.</p>
+        <p class="texto">Trabalho com apartamentos e casas em diversas regiões da cidade e com oportunidades de investimento para quem busca segurança e valorização.</p>
+        <div class="tags">
+          <span>Compra e venda</span>
+          <span>Avaliação</span>
+          <span>Investimento</span>
+          <span>Assessoria completa</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<footer>© <span id="ano"></span> ISAAC DUQUE · CORRETOR DE IMÓVEIS · RIO DE JANEIRO</footer>
+<section id="mapa">
+  <div class="container">
+    <div class="mapa-cabecalho reveal">
+      <span class="rotulo">Imóveis disponíveis</span>
+      <h2 class="titulo">Onde tenho imóveis</h2>
+      <p class="texto">Toque em um bairro para ver detalhes e falar comigo. Use os botões para filtrar por região.</p>
+    </div>
+    <div class="filtros reveal" id="filtros"></div>
+    <div id="mapa" class="reveal"></div>
+    <p class="mapa-legenda">Mapa interativo: arraste e use o zoom para explorar a cidade.</p>
+  </div>
+</section>
 
+<section id="contato" class="contato">
+  <div class="container">
+    <div class="contato-card reveal">
+      <span class="rotulo">Contato</span>
+      <h2 class="titulo">Vamos conversar?</h2>
+      <p class="texto">Fale diretamente comigo pelo WhatsApp ou acompanhe as novidades no Instagram.</p>
+      <div class="botoes">
+        <a class="btn btn-principal" href="https://wa.me/5521984912617" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 2.6 1 2.6.7 3 .7.5 0 1.6-.6 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/></svg>
+          WhatsApp
+        </a>
+        <a class="btn btn-secundario" href="https://instagram.com/consultor.isaacduque" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg>
+          Instagram
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© <span id="ano"></span> Isaac Duque · Corretor de Imóveis · Rio de Janeiro</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
 
-  const nav = document.getElementById("nav");
-  window.addEventListener("scroll", () => {
-    nav.classList.toggle("scrolled", window.scrollY > 50);
+  /* ===== DADOS DOS BAIRROS =====
+     Para adicionar ou remover um bairro, edite esta lista.
+     zona: "norte", "oeste", "central", "baixada" ou "oceanica" */
+  const zonas = {
+    norte: "Zona Norte",
+    oeste: "Zona Oeste",
+    central: "Zona Central",
+    baixada: "Baixada Fluminense",
+    oceanica: "Zona Oceânica"
+  };
+
+  const bairros = [
+    { nome: "Del Castilho", zona: "norte", lat: -22.8800, lng: -43.2790 },
+    { nome: "Irajá", zona: "norte", lat: -22.8290, lng: -43.3170 },
+    { nome: "Pavuna", zona: "norte", lat: -22.8000, lng: -43.3660 },
+    { nome: "Olaria", zona: "norte", lat: -22.8390, lng: -43.2640 },
+    { nome: "Bonsucesso", zona: "norte", lat: -22.8600, lng: -43.2530 },
+    { nome: "Piedade", zona: "norte", lat: -22.9000, lng: -43.2930 },
+    { nome: "Cordovil", zona: "norte", lat: -22.8270, lng: -43.3420 },
+    { nome: "Grajaú", zona: "norte", lat: -22.9230, lng: -43.2770 },
+    { nome: "Triagem", zona: "norte", lat: -22.8950, lng: -43.2420 },
+
+    { nome: "Santa Cruz", zona: "oeste", lat: -22.9170, lng: -43.6860 },
+    { nome: "Cosmos", zona: "oeste", lat: -22.8830, lng: -43.6170 },
+    { nome: "Benjamin do Monte", zona: "oeste", lat: -22.9000, lng: -43.6260 },
+    { nome: "Campo Grande", zona: "oeste", lat: -22.9030, lng: -43.5620 },
+    { nome: "Guaratiba", zona: "oeste", lat: -23.0500, lng: -43.5900 },
+    { nome: "Jacarepaguá", zona: "oeste", lat: -22.9440, lng: -43.3620 },
+    { nome: "Taquara", zona: "oeste", lat: -22.9120, lng: -43.3880 },
+    { nome: "Freguesia", zona: "oeste", lat: -22.9320, lng: -43.3450 },
+    { nome: "Pechincha", zona: "oeste", lat: -22.9340, lng: -43.3670 },
+    { nome: "Barra da Tijuca", zona: "oeste", lat: -23.0000, lng: -43.3650 },
+    { nome: "Recreio dos Bandeirantes", zona: "oeste", lat: -23.0200, lng: -43.4700 },
+
+    { nome: "São Cristóvão", zona: "central", lat: -22.8980, lng: -43.2200 },
+    { nome: "Centro", zona: "central", lat: -22.9068, lng: -43.1729 },
+
+    { nome: "Nova Iguaçu", zona: "baixada", lat: -22.7590, lng: -43.4510 },
+    { nome: "Caxias", zona: "baixada", lat: -22.7860, lng: -43.3050 },
+
+    { nome: "Niterói", zona: "oceanica", lat: -22.8830, lng: -43.1036 },
+    { nome: "São Gonçalo", zona: "oceanica", lat: -22.8270, lng: -43.0540 }
+  ];
+
+  /* ===== MAPA ===== */
+  const map = L.map("mapa", { zoomControl: true, scrollWheelZoom: true }).setView([-22.93, -43.35], 11);
+
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 16
+  }).addTo(map);
+
+  const marcadores = bairros.map(b => {
+    const m = L.circleMarker([b.lat, b.lng], {
+      radius: 8,
+      color: "#000",
+      weight: 2,
+      fillColor: "#e5e5ea",
+      fillOpacity: 1
+    });
+
+    const mensagem = encodeURIComponent("Olá, Isaac! Tenho interesse em imóveis em " + b.nome + ".");
+    m.bindTooltip(b.nome, { direction: "top", offset: [0, -8] });
+    m.bindPopup(
+      "<strong>" + b.nome + "</strong><br>" +
+      "<span class='popup-zona'>" + zonas[b.zona] + "</span><br>" +
+      "<a class='popup-btn' target='_blank' rel='noopener' href='https://wa.me/5521984912617?text=" + mensagem + "'>Falar sobre este bairro</a>"
+    );
+
+    m.addTo(map);
+    return { marcador: m, zona: b.zona, lat: b.lat, lng: b.lng };
   });
 
+  function ajustarVisao(filtrados) {
+    if (filtrados.length === 0) return;
+    const limites = L.latLngBounds(filtrados.map(f => [f.lat, f.lng]));
+    map.flyToBounds(limites, { padding: [50, 50], maxZoom: 12, duration: 0.8 });
+  }
+
+  /* ===== FILTROS POR ZONA ===== */
+  const containerFiltros = document.getElementById("filtros");
+
+  function criarFiltro(texto, chave) {
+    const botao = document.createElement("button");
+    botao.className = "filtro" + (chave === "todas" ? " ativo" : "");
+    botao.textContent = texto;
+    botao.addEventListener("click", () => {
+      document.querySelectorAll(".filtro").forEach(f => f.classList.remove("ativo"));
+      botao.classList.add("ativo");
+
+      const visiveis = [];
+      marcadores.forEach(item => {
+        const mostrar = chave === "todas" || item.zona === chave;
+        if (mostrar) {
+          item.marcador.addTo(map);
+          visiveis.push(item);
+        } else {
+          map.removeLayer(item.marcador);
+        }
+      });
+      ajustarVisao(visiveis);
+    });
+    containerFiltros.appendChild(botao);
+  }
+
+  criarFiltro("Todas", "todas");
+  Object.keys(zonas).forEach(chave => criarFiltro(zonas[chave], chave));
+
+  /* Ajusta a visão para mostrar todos os bairros ao carregar */
+  ajustarVisao(marcadores);
+
+  /* ===== REVELAÇÃO AO ROLAR ===== */
   const observador = new IntersectionObserver((entradas) => {
     entradas.forEach(e => {
       if (e.isIntersecting) {
